@@ -85,7 +85,7 @@ function makeHar(events) {
   return {
     log: {
       version: '1.2',
-      creator: { name: 'Bugpack Local', version: '0.1.0' },
+      creator: { name: 'Bugpack Local', version: '0.1.1' },
       entries: requests.map((event) => {
         const started = event.at - (event.durationMs || 0);
         const status = Number(event.status) || 0;

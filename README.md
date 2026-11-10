@@ -1,41 +1,59 @@
+<div align="center">
+  <img src="assets/bugpack-cover.png" alt="Bugpack Local: browser bug capture and report review" width="100%">
+  <p><a href="https://github.com/hilsetapp/bugpack-local/releases/download/v0.1.1/bugpack-local-extension.zip"><strong>Download the extension preview</strong></a> · <a href="https://github.com/hilsetapp/bugpack-local/releases">Releases</a> · <a href="README.ru.md">Русский</a></p>
+</div>
+
 # Bugpack Local
 
-I built Bugpack Local to save a browser bug as one file that a person or a local coding agent can inspect. The extension records a short screen buffer and browser events, then lets me review the report before downloading it.
+A Chrome/Chromium extension and local MCP reader for browser bug reports. Capture up to 30 seconds of screen video with nearby browser events, review the package, then export one `.bugpack` file.
 
-**English** | [Русский](README.ru.md)
+## Capture, review, read
 
-## What I collect
+<div align="center">
+  <img src="assets/bugpack-flow.gif" alt="Bugpack Local workflow: pick a source, capture, review, read through local MCP" width="100%">
+</div>
 
-- A rolling screen buffer of up to 30 seconds. I save it as short, playable WebM parts inside the package.
-- Clicks, form actions without typed values, console output, uncaught errors, and fetch or XHR request status and timing.
-- Local Storage and Session Storage at the moment I create the report. Common secret fields and token-shaped strings are masked.
-- A readable report, a prompt in English and Russian, a basic HAR file, and the raw event timeline.
+<details>
+  <summary>Popup and report previews</summary>
+  <p align="center">
+    <img src="assets/popup-preview.png" alt="Bugpack Local popup" width="42%">
+    <img src="assets/report-review.png" alt="Bugpack Local report review" width="56%">
+  </p>
+</details>
 
-The browser asks me to choose a tab, window, or screen. Page events come from the active tab when I start, so I choose that same tab, its browser window, or the screen. The extension has no access to sites until I start a capture. I can stop, review, and remove a draft before sharing it.
+The browser's own prompt selects a tab, window, or screen. Page events come from the active tab when capture starts. A draft can be reviewed, edited, or discarded before download.
 
-## What I do not collect
+### Included
 
-I do not upload reports or run a server. I do not capture audio. I do not record field values from page events. The video itself is not blurred, and pattern-based redaction cannot catch every secret, so I review a package before sharing it.
+- A rolling screen buffer of up to 30 seconds, saved as short WebM parts.
+- Clicks and form actions without typed values, console output, uncaught exceptions, and fetch/XHR method, URL, status, and duration.
+- Local Storage and Session Storage values from report time. Common secret fields and token-shaped strings are masked.
+- A readable report, event timeline, English and Russian coding prompts, and a basic HAR.
+- A local MCP server with `list_bugpacks`, `get_bug_context`, and `get_bugpack_file` tools.
 
-The HAR contains fetch and XHR method, URL, status, and duration. I do not capture request or response bodies, headers, images, or every browser resource. I cannot read a framework's Redux store in a reliable, general way. Storage means Local Storage and Session Storage only.
+### Not included or guaranteed
 
-## Install the extension
+- No account, upload service, or audio capture.
+- No request or response bodies, headers, images, or complete record of browser resources. The HAR covers fetch/XHR entries only.
+- No general Redux or framework-store capture.
+- Video is not blurred. Pattern-based redaction can miss sensitive values. Review the bundle before sharing it.
 
-I target Chrome and Chromium-based browsers with Manifest V3. I have not verified this build in every Chromium browser.
+## Install
 
-1. Download `bugpack-local-extension.zip` from the [GitHub preview download](https://github.com/hilsetapp/bugpack-local/releases/download/v0.1.0/bugpack-local-extension.zip).
-2. Unzip it to a folder.
-3. Open `chrome://extensions`, turn on Developer mode, and choose **Load unpacked**.
-4. Select the extracted folder and pin the extension.
-5. Open the site to test, choose the Bugpack icon, and select the tab, window, or screen to record.
-6. Reproduce the issue. Press `Alt+Shift+B` or choose **Save bug report**.
-7. Review the draft and download the `.bugpack` file.
+The extension targets Chrome and Chromium browsers with Manifest V3. **Screen capture has not been manually verified in Chrome for this preview build.**
 
-The screen capture uses the browser's own source picker. The selected source can include private information, so do not record passwords or personal data.
+1. Download [`bugpack-local-extension.zip`](https://github.com/hilsetapp/bugpack-local/releases/download/v0.1.1/bugpack-local-extension.zip) and unzip it.
+2. Open `chrome://extensions`, enable **Developer mode**, and select **Load unpacked**.
+3. Choose the extracted extension folder and pin Bugpack Local.
+4. Open the page to test, start capture, and select a tab, window, or screen in the browser prompt.
+5. Reproduce the issue. Press `Alt+Shift+B` or choose **Save bug report**.
+6. Review the draft and download the `.bugpack` file.
 
-## Read a report with MCP
+Choose a capture source that does not expose passwords or personal data. Screen video is not blurred.
 
-The MCP server reads only the folder I pass to it. It does not make network requests and cannot browse arbitrary paths on the computer.
+## Read a bundle with MCP
+
+The MCP server reads the folder supplied on the command line. It does not make network requests or browse arbitrary paths.
 
 ```sh
 npm ci
@@ -48,13 +66,7 @@ For Claude Code, from the repository folder:
 claude mcp add bugpack-local -- node /absolute/path/to/bugpack-local/cli/index.js mcp ~/Downloads/Bugpack
 ```
 
-The server provides three tools:
-
-- `list_bugpacks` lists reports in the selected folder.
-- `get_bug_context` reads the report, prompt, timeline, HAR, or storage section.
-- `get_bugpack_file` reads a text file from one selected package. It will not return video as text.
-
-I can also inspect a package without MCP:
+Without MCP, list or inspect a package directly:
 
 ```sh
 node cli/index.js list ~/Downloads/Bugpack
@@ -70,20 +82,20 @@ npm run test:syntax
 npm run pack:extension
 ```
 
-`npm run pack:extension` creates `bugpack-local-extension.zip` in the project folder.
+`npm run pack:extension` creates `bugpack-local-extension.zip` in the project folder. The README artwork can be regenerated with `python3 scripts/make-assets.py` (requires Pillow).
 
-## Package layout
+## Package contents
 
 ```text
-report.json       structured source of record
+report.json       structured report
 report.md         readable report
-prompt.md         English prompt for a coding agent
-prompt.ru.md      Russian prompt for a coding agent
+prompt.md         English coding prompt
+prompt.ru.md      Russian coding prompt
 events.json       timestamped browser events
 network.har       basic fetch/XHR entries
-storage.json      reviewed Local Storage and Session Storage
+storage.json      Local Storage and Session Storage values
 video/            short WebM parts, when included
 replay.html       local player for the video parts
 ```
 
-I use `.bugpack` as a ZIP file extension. I keep the browser capture and MCP reader in this repository so the bundle can move between them as a plain file.
+`.bugpack` is a ZIP archive with a different extension. The extension and MCP reader are in this repository; the exported report remains a local file.

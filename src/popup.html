@@ -15,7 +15,11 @@
     <section class="hero">
       <p class="eyebrow" data-t="eyebrow">KEEP THE MOMENT</p>
       <h1 data-t="title">Catch the bug.<br>Keep the context.</h1>
-      <p class="intro" data-t="intro">I keep a short screen buffer and the browser events you need to explain what failed.</p>
+      <p class="intro" data-t="intro">Keep the last moments on screen with the browser events around the bug.</p>
+      <div class="capture-sketch" aria-hidden="true">
+        <div class="sketch-window"><span></span><span></span><span></span><b></b><i></i></div>
+        <div class="sketch-side"><span class="sketch-label">30 SEC BUFFER</span><div class="buffer-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="sketch-footer"><span class="sketch-dot"></span><span>LOCAL CAPTURE</span><span class="sketch-time">00:30</span></div></div>
+      </div>
     </section>
     <section id="idlePanel" class="panel">
       <div class="panel-line"><span class="step-number">01</span><div><strong data-t="sourceTitle">Choose what to record</strong><p data-t="sourceText">A browser prompt lets you pick a tab, window, or screen.</p></div></div>
@@ -25,6 +29,7 @@
     <section id="activePanel" class="panel active-panel" hidden>
       <div class="record-row"><span class="record-dot"></span><div><strong data-t="armed">Capture is armed</strong><span id="elapsed" class="elapsed">00:00</span></div></div>
       <p class="active-copy" data-t="bufferText">The last 30 seconds stay in a local rolling buffer.</p>
+      <div class="active-buffer" aria-hidden="true"><span>LIVE BUFFER</span><div class="buffer-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
       <button id="bugButton" class="button bug-button"><span class="bang">!</span><span data-t="bug">Save bug report</span><span class="shortcut">Alt ⇧ B</span></button>
       <button id="stopButton" class="button quiet"><span data-t="stop">Stop capture</span></button>
     </section>

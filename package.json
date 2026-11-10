@@ -1,9 +1,9 @@
 {
   "name": "bugpack-local",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
-  "description": "I built Bugpack Local to make a browser bug report portable, reviewable, and readable by a local MCP server.",
+  "description": "Local browser bug capture with a reviewable .bugpack export and MCP reader.",
   "scripts": {
     "test": "node --test",
     "test:syntax": "node --check src/background.js && node --check src/offscreen.js && node --check src/popup.js && node --check src/review.js && node --check src/page-bridge.js && node --check src/isolated-bridge.js && node --check src/shared/redact.js && node --check src/shared/zip-write.js && node --check src/shared/idb.js && node --check cli/index.js && node --check cli/zip-reader.js",
