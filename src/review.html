@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Review bug report · Bugpack Local</title>
+  <link rel="stylesheet" href="review.css">
+</head>
+<body>
+  <header class="masthead">
+    <a class="brand" href="#"><span class="brand-mark">B</span><span>bugpack <i>local</i></span></a>
+    <div class="mast-right"><span class="local-pill"><i></i><span data-t="local">LOCAL FILE</span></span><span class="package-id" id="packageId"></span></div>
+  </header>
+  <main class="layout">
+    <section class="main-column">
+      <div class="page-head"><p class="eyebrow" data-t="eyebrow">BEFORE YOU SEND IT</p><h1 data-t="title">Review the bugpack</h1><p class="subtitle" data-t="subtitle">A quick check before this file leaves your machine.</p></div>
+      <section class="card video-card">
+        <div class="section-head"><div><span class="section-kicker">01</span><h2 data-t="videoTitle">Last moments</h2></div><span class="tag" id="videoCount">0 parts</span></div>
+        <div class="player-wrap"><video id="videoPlayer" controls playsinline></video><div id="noVideo" class="empty-video" data-t="noVideo">No video segment was captured.</div><div class="video-stamp" data-t="segmentNote">Up to 30 seconds · saved as short WebM parts</div></div>
+        <div id="segmentList" class="segment-list"></div>
+      </section>
+      <section class="card form-card">
+        <div class="section-head"><div><span class="section-kicker">02</span><h2 data-t="reportTitle">What happened?</h2></div><span class="tag" data-t="draftTag">DRAFT</span></div>
+        <label for="titleInput" data-t="titleLabel">Short title</label><input id="titleInput" maxlength="120" placeholder="For example: Save button stays disabled" data-ph="titlePlaceholder">
+        <label for="descriptionInput" data-t="descriptionLabel">What did you expect, and what happened?</label><textarea id="descriptionInput" rows="3" maxlength="1500" placeholder="Add a couple of steps or a note for the developer." data-ph="descriptionPlaceholder"></textarea>
+        <div class="page-meta"><span class="meta-icon">↗</span><div><strong id="pageTitle">Page</strong><a id="pageUrl" target="_blank" rel="noreferrer"></a></div></div>
+      </section>
+      <section class="card timeline-card">
+        <div class="section-head"><div><span class="section-kicker">03</span><h2 data-t="timelineTitle">Captured context</h2></div><span class="tag" id="eventCount">0 events</span></div>
+        <div id="timeline" class="timeline"></div>
+      </section>
+    </section>
+    <aside class="side-column">
+      <section class="review-note"><div class="note-mark">!</div><div><strong data-t="privacyTitle">Read this before sharing</strong><p data-t="privacyText">Storage values are included. Common token and password fields are masked, but no filter catches every secret. This review stays local.</p></div></section>
+      <section class="card include-card">
+        <div class="section-head"><div><span class="section-kicker">04</span><h2 data-t="includeTitle">Put in the bundle</h2></div></div>
+        <label class="check-row"><input id="includeVideo" type="checkbox" checked><span><b data-t="includeVideoTitle">Screen video</b><small id="videoInfo">0 parts</small></span></label>
+        <label class="check-row"><input id="includeContext" type="checkbox" checked><span><b data-t="includeContextTitle">Steps, console, and network</b><small id="contextInfo">Browser events captured while armed</small></span></label>
+        <label class="check-row"><input id="includeStorage" type="checkbox" checked><span><b data-t="includeStorageTitle">Local and session storage</b><small id="storageInfo">Values are masked by common patterns</small></span></label>
+        <details class="storage-details"><summary data-t="showStorage">Review captured storage</summary><div id="storagePreview"></div></details>
+      </section>
+      <section class="card pack-card">
+        <div class="pack-icon">.bp</div><div><strong data-t="packTitle">One local file</strong><p data-t="packText">The .bugpack contains a readable report, AI prompt, timeline, HAR, and optional video parts.</p></div>
+        <div class="pack-files"><span>report.md</span><span>prompt.md</span><span>network.har</span><span>video/</span></div>
+      </section>
+      <button id="exportButton" class="button export-button"><span data-t="export">Download .bugpack</span><span>↘</span></button>
+      <button id="discardButton" class="button discard-button" data-t="discard">Discard this draft</button>
+      <p id="status" class="status" role="status"></p>
+      <p class="footnote" data-t="noUpload">Nothing is uploaded. The browser downloads the file to your computer.</p>
+    </aside>
+  </main>
+  <script type="module" src="review.js"></script>
+</body>
+</html>
