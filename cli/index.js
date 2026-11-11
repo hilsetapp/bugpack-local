@@ -49,7 +49,7 @@ function textResult(text, isError = false) {
 
 async function startMcp(rootArg) {
   const root = resolve(expandHome(rootArg));
-  const server = new McpServer({ name: 'bugpack-local', version: '0.1.1' });
+  const server = new McpServer({ name: 'bugpack-local', version: '0.1.2' });
 
   server.registerTool('list_bugpacks', {
     title: 'List local bug reports',
@@ -126,7 +126,7 @@ async function run() {
     return;
   }
   if (command === '--version' || command === '-v') {
-    console.log('bugpack-local 0.1.1');
+    console.log('bugpack-local 0.1.2');
     return;
   }
   console.log('Usage: bugpack <mcp [directory] | list [directory] | inspect <file.bugpack>');

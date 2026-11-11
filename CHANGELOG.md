@@ -1,5 +1,12 @@
 # Changes
 
+## 0.1.2 preview · 2026-10-15
+
+- Reworked the project artwork with fewer labels and larger, readable type.
+- Simplified the popup buffer display and increased text sizes across the extension and report review.
+- Reduced decorative motion and kept only the recording status pulse.
+- Rebuilt the extension preview ZIP.
+
 ## 0.1.1 preview · 2026-10-15
 
 - Refreshed the popup and report review with a capture-buffer illustration and reduced-motion-aware animation.

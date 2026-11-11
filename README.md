@@ -1,6 +1,6 @@
 <div align="center">
   <img src="assets/bugpack-cover.png" alt="Bugpack Local: browser bug capture and report review" width="100%">
-  <p><a href="https://github.com/hilsetapp/bugpack-local/releases/download/v0.1.1/bugpack-local-extension.zip"><strong>Download the extension preview</strong></a> · <a href="https://github.com/hilsetapp/bugpack-local/releases">Releases</a> · <a href="README.ru.md">Русский</a></p>
+  <p><a href="https://github.com/hilsetapp/bugpack-local/releases/download/v0.1.2/bugpack-local-extension.zip"><strong>Download the extension preview</strong></a> · <a href="https://github.com/hilsetapp/bugpack-local/releases">Releases</a> · <a href="README.ru.md">Русский</a></p>
 </div>
 
 # Bugpack Local
@@ -15,10 +15,10 @@ A Chrome/Chromium extension and local MCP reader for browser bug reports. Captur
 
 <details>
   <summary>Popup and report previews</summary>
-  <p align="center">
-    <img src="assets/popup-preview.png" alt="Bugpack Local popup" width="42%">
-    <img src="assets/report-review.png" alt="Bugpack Local report review" width="56%">
-  </p>
+  <p><strong>Extension popup</strong></p>
+  <img src="assets/popup-preview.png" alt="Bugpack Local extension popup" width="100%">
+  <p><strong>Report review</strong></p>
+  <img src="assets/report-review.png" alt="Bugpack Local report review" width="100%">
 </details>
 
 The browser's own prompt selects a tab, window, or screen. Page events come from the active tab when capture starts. A draft can be reviewed, edited, or discarded before download.
@@ -42,7 +42,7 @@ The browser's own prompt selects a tab, window, or screen. Page events come from
 
 The extension targets Chrome and Chromium browsers with Manifest V3. **Screen capture has not been manually verified in Chrome for this preview build.**
 
-1. Download [`bugpack-local-extension.zip`](https://github.com/hilsetapp/bugpack-local/releases/download/v0.1.1/bugpack-local-extension.zip) and unzip it.
+1. Download [`bugpack-local-extension.zip`](https://github.com/hilsetapp/bugpack-local/releases/download/v0.1.2/bugpack-local-extension.zip) and unzip it.
 2. Open `chrome://extensions`, enable **Developer mode**, and select **Load unpacked**.
 3. Choose the extracted extension folder and pin Bugpack Local.
 4. Open the page to test, start capture, and select a tab, window, or screen in the browser prompt.

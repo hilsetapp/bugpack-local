@@ -1,6 +1,6 @@
 <div align="center">
   <img src="assets/bugpack-cover.png" alt="Bugpack Local: запись сбоя в браузере и проверка отчёта" width="100%">
-  <p><a href="https://github.com/hilsetapp/bugpack-local/releases/download/v0.1.1/bugpack-local-extension.zip"><strong>Скачать предварительную сборку</strong></a> · <a href="https://github.com/hilsetapp/bugpack-local/releases">Релизы</a> · <a href="README.md">English</a></p>
+  <p><a href="https://github.com/hilsetapp/bugpack-local/releases/download/v0.1.2/bugpack-local-extension.zip"><strong>Скачать предварительную сборку</strong></a> · <a href="https://github.com/hilsetapp/bugpack-local/releases">Релизы</a> · <a href="README.md">English</a></p>
 </div>
 
 # Bugpack Local
@@ -15,10 +15,10 @@
 
 <details>
   <summary>Предварительный вид окна и отчёта</summary>
-  <p align="center">
-    <img src="assets/popup-preview.png" alt="Окно Bugpack Local" width="42%">
-    <img src="assets/report-review.png" alt="Проверка отчёта Bugpack Local" width="56%">
-  </p>
+  <p><strong>Окно расширения</strong></p>
+  <img src="assets/popup-preview.png" alt="Окно расширения Bugpack Local" width="100%">
+  <p><strong>Проверка отчёта</strong></p>
+  <img src="assets/report-review.png" alt="Экран проверки отчёта Bugpack Local" width="100%">
 </details>
 
 Источник выбирается в стандартном окне браузера: вкладка, окно или экран. События страницы записываются из активной вкладки на момент запуска. Перед скачиванием черновик можно проверить, изменить или удалить.
@@ -42,7 +42,7 @@
 
 Расширение рассчитано на Chrome и Chromium с Manifest V3. **Захват экрана вручную не проверялся в Chrome для этой предварительной сборки.**
 
-1. Скачай [`bugpack-local-extension.zip`](https://github.com/hilsetapp/bugpack-local/releases/download/v0.1.1/bugpack-local-extension.zip) и распакуй архив.
+1. Скачай [`bugpack-local-extension.zip`](https://github.com/hilsetapp/bugpack-local/releases/download/v0.1.2/bugpack-local-extension.zip) и распакуй архив.
 2. Открой `chrome://extensions`, включи **Режим разработчика** и выбери **Загрузить распакованное расширение**.
 3. Укажи распакованную папку и закрепи Bugpack Local.
 4. Открой страницу для проверки, запусти захват и выбери вкладку, окно или экран в окне браузера.

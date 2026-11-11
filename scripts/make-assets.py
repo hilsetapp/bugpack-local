@@ -1,314 +1,354 @@
+"""Generate the legible, editorial-style README artwork for Bugpack Local."""
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont
 
-OUT = Path(__file__).resolve().parents[1] / 'assets'
+OUT = Path(__file__).resolve().parents[1] / "assets"
 OUT.mkdir(exist_ok=True)
-BG = '#f1efe8'
-PAPER = '#fffefa'
-INK = '#202b26'
-MUTED = '#727a72'
-LINE = '#e1dfd6'
-GREEN = '#24372f'
-GREEN2 = '#33493e'
-RED = '#d94d36'
-OLIVE = '#788c6d'
-SOFT = '#e8ece4'
-CREAM = '#f7f5ee'
-GOLD = '#d8c17d'
-FONT_CANDIDATES = {
-    'regular': [
-        '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
-        '/System/Library/Fonts/Supplemental/Arial.ttf',
-        'C:/Windows/Fonts/arial.ttf',
+
+BG = "#f2f0e9"
+PAPER = "#fffef9"
+INK = "#1f2b26"
+MUTED = "#59645d"
+LINE = "#d8d7ce"
+DARK = "#20332b"
+DARK2 = "#31473b"
+RED = "#d54c35"
+OLIVE = "#72866b"
+PALE = "#e6e9df"
+WHITE = "#fbfaf5"
+GOLD = "#d7bd76"
+
+FONT_PATHS = {
+    "regular": [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/System/Library/Fonts/Supplemental/Arial.ttf",
+        "C:/Windows/Fonts/arial.ttf",
     ],
-    'bold': [
-        '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
-        '/System/Library/Fonts/Supplemental/Arial Bold.ttf',
-        'C:/Windows/Fonts/arialbd.ttf',
+    "bold": [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+        "C:/Windows/Fonts/arialbd.ttf",
     ],
-    'mono': [
-        '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf',
-        '/System/Library/Fonts/Supplemental/Courier New.ttf',
-        'C:/Windows/Fonts/cour.ttf',
+    "mono": [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
+        "/System/Library/Fonts/Supplemental/Courier New.ttf",
+        "C:/Windows/Fonts/cour.ttf",
     ],
 }
-FONT_PATHS = {key: next((path for path in paths if Path(path).is_file()), None) for key, paths in FONT_CANDIDATES.items()}
+FONT_PATHS = {kind: next((p for p in paths if Path(p).is_file()), None) for kind, paths in FONT_PATHS.items()}
 
 
 def font(size, bold=False, mono=False):
-    path = FONT_PATHS['mono' if mono else 'bold' if bold else 'regular'] or FONT_PATHS['regular']
+    path = FONT_PATHS["mono" if mono else "bold" if bold else "regular"] or FONT_PATHS["regular"]
     if path:
         return ImageFont.truetype(path, size)
     return ImageFont.load_default(size=size)
 
 
-def rounded(draw, box, radius, fill, outline=None, width=1):
+def rr(draw, box, radius=12, fill=PAPER, outline=None, width=1):
     draw.rounded_rectangle(box, radius=radius, fill=fill, outline=outline, width=width)
 
 
-def text(draw, xy, value, size=14, color=INK, bold=False, mono=False, anchor=None):
-    draw.text(xy, value, font=font(size, bold, mono), fill=color, anchor=anchor)
+def txt(draw, xy, value, size, color=INK, bold=False, mono=False, anchor=None, spacing=8):
+    draw.multiline_text(xy, value, font=font(size, bold, mono), fill=color, anchor=anchor, spacing=spacing)
 
 
-def pill(draw, x, y, value, fill='#e7ebe3', color='#64755f', size=10, pad=9, height=25):
-    width = int(draw.textlength(value, font=font(size, True))) + pad * 2
-    rounded(draw, (x, y, x + width, y + height), height // 2, fill)
-    text(draw, (x + width / 2, y + height / 2), value, size, color, True, anchor='mm')
-    return width
+def mark(draw, x, y, size=38):
+    rr(draw, (x, y, x + size, y + size), 9, DARK)
+    rr(draw, (x + 8, y + 8, x + size - 8, y + size - 8), 4, BG)
+    rr(draw, (x + 13, y + 14, x + 25, y + 18), 2, OLIVE)
+    rr(draw, (x + 13, y + 22, x + 28, y + 26), 2, "#b8bdb2")
+    draw.ellipse((x + 25, y + 25, x + 33, y + 33), fill=RED)
 
 
-def mark(draw, x, y, size=36):
-    rounded(draw, (x, y, x + size, y + size), 9, GREEN)
-    rounded(draw, (x + 7, y + 7, x + size - 7, y + size - 7), 5, CREAM)
-    rounded(draw, (x + 12, y + 13, x + 22, y + 16), 2, OLIVE)
-    rounded(draw, (x + 12, y + 20, x + 26, y + 23), 2, '#c5c8be')
-    draw.ellipse((x + 23, y + 22, x + 31, y + 30), fill=RED)
-    draw.ellipse((x + 26, y + 25, x + 28, y + 27), fill=CREAM)
-
-
-def draw_popup(image, x, y, width=420, height=620, active=False, phase=0):
-    shadow = Image.new('RGBA', image.size, (0, 0, 0, 0))
-    shadow_draw = ImageDraw.Draw(shadow)
-    shadow_draw.rounded_rectangle((x + 8, y + 12, x + width + 8, y + height + 12), radius=22, fill=(28, 39, 33, 30))
-    image.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(12)))
-    draw = ImageDraw.Draw(image)
-    rounded(draw, (x, y, x + width, y + height), 22, PAPER, LINE, 2)
-    mark(draw, x + 22, y + 20, 34)
-    text(draw, (x + 66, y + 39), 'bugpack', 17, INK, True, anchor='lm')
-    text(draw, (x + 148, y + 39), 'local', 15, MUTED, False, anchor='lm')
-    pill(draw, x + width - 112, y + 26, 'LOCAL', SOFT, '#667a5c', 9, 8, 23)
-    text(draw, (x + 24, y + 83), 'KEEP THE MOMENT', 9, RED, True)
-    text(draw, (x + 24, y + 118), 'Catch the bug.', 26, INK, True)
-    text(draw, (x + 24, y + 149), 'Keep the context.', 26, INK, True)
-    text(draw, (x + 24, y + 182), 'Screen, browser events and state in one local bundle.', 11, MUTED)
-    rounded(draw, (x + 22, y + 204, x + width - 22, y + 280), 11, '#ebe9e0', LINE)
-    rounded(draw, (x + 34, y + 216, x + 130, y + 269), 7, '#faf9f4', '#d7d5ca')
-    for i, color in enumerate([RED, GOLD, OLIVE]):
-        draw.ellipse((x + 43 + i * 10, y + 225, x + 49 + i * 10, y + 231), fill=color)
-    rounded(draw, (x + 48, y + 241, x + 116, y + 245), 2, '#b8bdb2')
-    rounded(draw, (x + 48, y + 250, x + 104, y + 254), 2, '#d0d1c9')
-    text(draw, (x + 145, y + 222), '30 SEC BUFFER', 8, '#82877d', True)
-    for i in range(12):
-        height_bar = [7, 10, 5, 12, 8, 14, 6, 11, 5, 13, 8, 10][(i + phase) % 12]
-        color = RED if active and i >= 8 else '#bbc0b5'
-        rounded(draw, (x + 145 + i * 15, y + 253 - height_bar, x + 153 + i * 15, y + 253), 4, color)
-    draw.ellipse((x + 145, y + 261, x + 152, y + 268), fill=RED if active else OLIVE)
-    text(draw, (x + 160, y + 261), 'LOCAL CAPTURE', 8, '#74806e', True, anchor='lm')
-    text(draw, (x + width - 46, y + 261), '00:30', 9, MUTED, False, True, anchor='rm')
-    rounded(draw, (x + 22, y + 300, x + width - 22, y + 379), 11, PAPER, LINE)
-    rounded(draw, (x + 34, y + 315, x + 62, y + 343), 7, '#eeeee6')
-    text(draw, (x + 48, y + 329), '01', 10, '#7b8178', True, anchor='mm')
-    text(draw, (x + 74, y + 323), 'Choose what to record', 12, INK, True)
-    text(draw, (x + 74, y + 346), 'Tab, window or screen', 10, MUTED)
-    rounded(draw, (x + 22, y + 395, x + width - 22, y + 445), 10, RED if active else GREEN)
-    text(draw, (x + 43, y + 420), '!', 16, CREAM, True, anchor='mm')
-    text(draw, (x + 65, y + 420), 'Save bug report' if active else 'Choose source and start', 12, CREAM, True, anchor='lm')
-    text(draw, (x + width - 42, y + 420), 'ALT ⇧ B' if active else '↗', 9, '#f2d9a0', True, anchor='rm')
-    text(draw, (x + 26, y + height - 31), 'No account   ·   No upload   ·   Review before sharing', 8, '#858a81')
-
-
-def draw_report_base(phase=0):
-    width, height = 1010, 545
-    image = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(image)
-    rounded(draw, (0, 0, width - 1, height - 1), 20, PAPER, LINE, 2)
-    text(draw, (28, 28), 'BUGPACK LOCAL     /     REPORT REVIEW', 9, RED, True)
-    text(draw, (28, 53), 'Review the bugpack', 23, INK, True)
-    text(draw, (28, 83), 'A quick check before this file leaves the device.', 10, MUTED)
-    main_width = 625
-    side_x = main_width + 46
-    rounded(draw, (24, 110, main_width, 290), 11, '#1e2824')
-    rounded(draw, (44, 128, 145, 204), 7, '#34483e')
-    rounded(draw, (61, 147, 126, 155), 3, '#839579')
-    rounded(draw, (61, 164, 117, 170), 3, '#687a69')
-    draw.ellipse((83, 175, 105, 197), fill=RED)
-    draw.polygon([(92, 180), (92, 192), (101, 186)], fill=CREAM)
-    text(draw, (165, 145), 'Last moments', 15, CREAM, True)
-    text(draw, (165, 172), 'Short WebM parts play in sequence', 10, '#bac2b9')
-    text(draw, (165, 205), '00:00', 9, '#d8d9d2', False, True)
-    for i in range(36):
-        xx = 166 + i * 10
-        bar_height = 5 + ((i * 7 + phase * 3) % 15)
-        rounded(draw, (xx, 244 - bar_height, xx + 5, 244), 2, RED if i in (19, 20, 21) else '#718273')
-    text(draw, (165, 264), '0:00', 8, '#aab1a8', False, True)
-    text(draw, (516, 264), '0:30', 8, '#aab1a8', False, True, anchor='rm')
-    text(draw, (28, 322), 'CAPTURED CONTEXT', 8, RED, True)
-    text(draw, (28, 344), 'Browser timeline', 14, INK, True)
-    rows = [('0:04', 'CLICK', 'Place order', False), ('0:11', 'NETWORK', 'POST /api/orders  ·  500', True), ('0:12', 'CONSOLE', 'Request failed: 500 Internal Server Error', True)]
-    for i, (time, kind, label, failed) in enumerate(rows):
-        yy = 373 + i * 39
-        if i:
-            draw.line((28, yy - 12, main_width - 3, yy - 12), fill='#eeede7', width=1)
-        text(draw, (30, yy), time, 9, MUTED, False, True)
-        text(draw, (94, yy), kind, 8, RED if failed else OLIVE, True)
-        text(draw, (182, yy), label, 10, INK)
-    rounded(draw, (side_x, 110, width - 24, 206), 11, '#fff4ee', '#edc5b7')
-    draw.ellipse((side_x + 14, 128, side_x + 35, 149), fill=RED)
-    text(draw, (side_x + 24, 138), '!', 11, CREAM, True, anchor='mm')
-    text(draw, (side_x + 46, 132), 'Review before sharing', 10, INK, True)
-    text(draw, (side_x + 46, 152), 'Local data stays here.', 9, '#835c52')
-    text(draw, (side_x + 16, 180), 'Video is not blurred.', 9, '#835c52')
-    rounded(draw, (side_x, 219, width - 24, 357), 11, PAPER, LINE)
-    text(draw, (side_x + 15, 243), 'STORAGE INCLUDED', 8, OLIVE, True)
-    text(draw, (side_x + 15, 267), 'access_token', 9, MUTED, False, True)
-    text(draw, (width - 40, 267), '[REDACTED]', 9, RED, True, True, anchor='rm')
-    draw.line((side_x + 14, 278, width - 39, 278), fill=LINE, width=1)
-    text(draw, (side_x + 15, 300), 'theme', 9, MUTED, False, True)
-    text(draw, (width - 40, 300), 'dark', 9, INK, False, True, anchor='rm')
-    draw.line((side_x + 14, 312, width - 39, 312), fill=LINE, width=1)
-    pill(draw, side_x + 14, 325, 'REDACTION IS NOT COMPLETE', '#f4eee0', '#786846', 7, 7, 18)
-    rounded(draw, (side_x, 375, width - 24, 426), 9, RED)
-    text(draw, (side_x + 18, 400), 'Download .bugpack', 11, CREAM, True, anchor='lm')
-    text(draw, (width - 43, 400), '↓', 17, CREAM, True, anchor='rm')
-    text(draw, (side_x + 2, 450), 'report.md    prompt.md    network.har', 8, MUTED, False, True)
-    return image
+def label(draw, x, y, value, size=15, color=MUTED):
+    txt(draw, (x, y), value, size, color, bold=True, mono=True)
 
 
 def draw_cover():
-    width, height = 1600, 1020
-    image = Image.new('RGBA', (width, height), BG)
-    draw = ImageDraw.Draw(image)
-    draw.ellipse((1240, -330, 1740, 170), fill='#e8e5db')
-    draw.ellipse((1350, -220, 1650, 80), fill='#ebe8de')
-    mark(draw, 70, 54, 38)
-    text(draw, (122, 73), 'BUGPACK LOCAL', 12, INK, True, anchor='lm')
-    pill(draw, 1272, 58, 'CHROMIUM EXTENSION', PAPER, '#70786e', 9, 12, 27)
-    text(draw, (70, 145), 'Browser bug reports,', 46, INK, True)
-    text(draw, (70, 197), 'kept on your device.', 46, INK, True)
-    text(draw, (72, 269), 'Screen buffer   ·   Console and network   ·   Local MCP', 15, MUTED)
-    draw_popup(image, 70, 340, 410, 500, True, 2)
-    image.alpha_composite(draw_report_base(1), (515, 330))
-    draw = ImageDraw.Draw(image)
-    text(draw, (70, 955), 'SCREEN BUFFER', 9, OLIVE, True)
-    text(draw, (190, 955), '→', 13, RED, True)
-    text(draw, (218, 955), 'REVIEW', 9, OLIVE, True)
-    text(draw, (300, 955), '→', 13, RED, True)
-    text(draw, (328, 955), '.BUGPACK', 9, OLIVE, True)
-    text(draw, (450, 955), '→', 13, RED, True)
-    text(draw, (480, 955), 'LOCAL MCP', 9, OLIVE, True)
-    return image.convert('RGB')
+    w, h = 1600, 1000
+    im = Image.new("RGB", (w, h), BG)
+    d = ImageDraw.Draw(im)
+    mark(d, 72, 54, 40)
+    txt(d, (126, 75), "BUGPACK LOCAL", 17, INK, bold=True, anchor="lm")
+    txt(d, (1528, 75), "CHROME EXTENSION  /  LOCAL MCP", 15, MUTED, bold=True, mono=True, anchor="rm")
+
+    txt(d, (72, 155), "Browser bugs,\nkept as a local file.", 60, INK, bold=True, spacing=10)
+    txt(d, (76, 330), "Screen video and browser events in one report,\nready to review before export.", 26, MUTED, spacing=10)
+
+    # The three product facts are kept large and plain.
+    d.line((76, 466, 664, 466), fill=LINE, width=2)
+    facts = [(76, "30 SEC", "SCREEN BUFFER"), (278, "LOCAL", "NO UPLOAD"), (470, "MCP", "READ REPORTS")]
+    for x, head, sub in facts:
+        txt(d, (x, 493), head, 25, RED if head == "30 SEC" else INK, bold=True)
+        txt(d, (x, 530), sub, 15, MUTED, bold=True, mono=True)
+
+    # One clear report illustration, with only readable labels.
+    x, y, cw, ch = 724, 132, 804, 660
+    rr(d, (x, y, x + cw, y + ch), 18, PAPER, LINE, 2)
+    rr(d, (x + 1, y + 1, x + cw - 1, y + 72), 17, DARK)
+    d.rectangle((x + 1, y + 47, x + cw - 1, y + 72), fill=DARK)
+    txt(d, (x + 34, y + 37), "BUGPACK  /  REPORT REVIEW", 17, WHITE, bold=True, mono=True, anchor="lm")
+    rr(d, (x + cw - 194, y + 20, x + cw - 32, y + 53), 16, DARK2)
+    txt(d, (x + cw - 113, y + 36), "LOCAL FILE", 13, WHITE, bold=True, mono=True, anchor="mm")
+
+    # Video panel
+    vx, vy, vw, vh = x + 30, y + 105, 420, 330
+    rr(d, (vx, vy, vx + vw, vy + vh), 12, DARK)
+    txt(d, (vx + 22, vy + 23), "SCREEN BUFFER", 15, "#c4cec2", bold=True, mono=True)
+    txt(d, (vx + vw - 23, vy + 23), "30 SEC", 17, WHITE, bold=True, mono=True, anchor="ra")
+    rr(d, (vx + 22, vy + 66, vx + vw - 22, vy + 245), 8, DARK2)
+    # Simple screen/play icon, not tiny interface copy.
+    rr(d, (vx + 58, vy + 91, vx + 196, vy + 196), 8, "#415a49")
+    d.ellipse((vx + 111, vy + 121, vx + 151, vy + 161), fill=RED)
+    d.polygon([(vx + 126, vy + 131), (vx + 126, vy + 151), (vx + 141, vy + 141)], fill=WHITE)
+    txt(d, (vx + 220, vy + 106), "LAST MOMENTS", 18, WHITE, bold=True)
+    txt(d, (vx + 220, vy + 145), "Saved locally", 17, "#c4cec2")
+    # Timeline bars, decorative only.
+    for i, height in enumerate([14, 23, 18, 30, 19, 26, 14, 32, 20, 27, 15, 24, 31, 17, 25, 13]):
+        bx = vx + 25 + i * 23
+        rr(d, (bx, vy + 285 - height, bx + 11, vy + 285), 5, RED if i in (9, 10) else "#85947d")
+    d.line((vx + 23, vy + 300, vx + vw - 23, vy + 300), fill="#526459", width=2)
+    txt(d, (vx + 23, vy + 310), "0:00", 13, "#c4cec2", mono=True)
+    txt(d, (vx + vw - 23, vy + 310), "0:30", 13, "#c4cec2", mono=True, anchor="ra")
+
+    # Event panel with readable sample rows.
+    ex, ey, ew = x + 478, y + 105, 296
+    txt(d, (ex, ey + 6), "EXAMPLE EVENTS", 15, OLIVE, bold=True, mono=True)
+    rows = [("0:04", "Click · Place order", False), ("0:11", "POST /orders · 500", True), ("0:12", "Console · request failed", True)]
+    for i, (timecode, event, failed) in enumerate(rows):
+        ry = ey + 56 + i * 76
+        d.line((ex, ry + 60, ex + ew, ry + 60), fill=LINE, width=1)
+        txt(d, (ex, ry), timecode, 14, MUTED, mono=True)
+        txt(d, (ex, ry + 27), event, 17, RED if failed else INK, bold=failed)
+    rr(d, (ex, ey + 298, ex + ew, ey + 330), 7, PALE)
+    txt(d, (ex + 12, ey + 314), "REVIEW STORAGE VALUES", 14, INK, bold=True, mono=True, anchor="lm")
+
+    # Export bar
+    rr(d, (x + 30, y + 474, x + cw - 30, y + 570), 11, "#f0eee6", LINE)
+    txt(d, (x + 54, y + 522), ".BUGPACK", 25, INK, bold=True, mono=True, anchor="lm")
+    txt(d, (x + 245, y + 522), "Review before sharing", 18, MUTED, anchor="lm")
+    rr(d, (x + cw - 223, y + 493, x + cw - 52, y + 552), 9, RED)
+    txt(d, (x + cw - 137, y + 522), "DOWNLOAD", 15, WHITE, bold=True, mono=True, anchor="mm")
+
+    # Clear workflow footer.
+    d.line((72, 866, 1528, 866), fill=LINE, width=2)
+    steps = [(76, "01", "CAPTURE"), (452, "02", "REVIEW"), (820, "03", "EXPORT .BUGPACK"), (1210, "04", "READ LOCALLY")]
+    for xx, number, name in steps:
+        txt(d, (xx, 914), number, 17, RED, bold=True, mono=True, anchor="lm")
+        txt(d, (xx + 42, 914), name, 17, INK, bold=True, mono=True, anchor="lm")
+    return im
+
+
+def draw_popup_preview():
+    w, h = 760, 860
+    im = Image.new("RGB", (w, h), BG)
+    d = ImageDraw.Draw(im)
+    x, y, cw, ch = 130, 35, 500, 790
+    rr(d, (x, y, x + cw, y + ch), 20, PAPER, LINE, 2)
+    mark(d, x + 28, y + 28, 40)
+    txt(d, (x + 82, y + 49), "Bugpack Local", 23, INK, bold=True, anchor="lm")
+    txt(d, (x + cw - 28, y + 49), "LOCAL", 15, OLIVE, bold=True, mono=True, anchor="rm")
+    txt(d, (x + 30, y + 116), "Catch the bug.\nKeep the context.", 34, INK, bold=True, spacing=8)
+    txt(d, (x + 31, y + 208), "Screen video and browser events in one local report.", 17, MUTED)
+
+    rr(d, (x + 28, y + 270, x + cw - 28, y + 455), 12, "#eeece4")
+    txt(d, (x + 50, y + 302), "SCREEN BUFFER", 15, MUTED, bold=True, mono=True)
+    txt(d, (x + cw - 49, y + 302), "30 SEC", 20, INK, bold=True, mono=True, anchor="ra")
+    for i, height in enumerate([19, 27, 22, 35, 25, 31, 20, 37, 28, 33, 21, 30, 36, 23, 33, 20]):
+        bx = x + 52 + i * 24
+        rr(d, (bx, y + 399 - height, bx + 13, y + 399), 5, RED if i in (10, 11) else OLIVE)
+    d.line((x + 50, y + 417, x + cw - 50, y + 417), fill="#cfcec4", width=2)
+    txt(d, (x + 50, y + 430), "Rolling capture stays on this device", 16, MUTED)
+
+    txt(d, (x + 30, y + 510), "Choose what to record", 20, INK, bold=True)
+    txt(d, (x + 30, y + 544), "Tab, window, or screen", 17, MUTED)
+    rr(d, (x + 28, y + 590, x + cw - 28, y + 656), 10, DARK)
+    txt(d, (x + cw / 2, y + 623), "Choose source and start", 19, WHITE, bold=True, anchor="mm")
+    rr(d, (x + 28, y + 682, x + cw - 28, y + 752), 9, PALE)
+    txt(d, (x + 48, y + 717), "Review the file before sharing", 16, INK, anchor="lm")
+    return im
+
+
+def draw_report_preview():
+    w, h = 1320, 820
+    im = Image.new("RGB", (w, h), BG)
+    d = ImageDraw.Draw(im)
+    x, y, cw, ch = 34, 30, 1252, 760
+    rr(d, (x, y, x + cw, y + ch), 18, PAPER, LINE, 2)
+    label(d, x + 35, y + 32, "BUGPACK LOCAL  /  REPORT REVIEW", 15, RED)
+    txt(d, (x + 34, y + 73), "Review before export", 34, INK, bold=True)
+    txt(d, (x + 36, y + 123), "Check the timeline and included data before the file leaves this device.", 19, MUTED)
+
+    left, top, leftw = x + 34, y + 175, 720
+    rr(d, (left, top, left + leftw, top + 278), 12, DARK)
+    txt(d, (left + 25, top + 23), "SCREEN BUFFER  /  30 SEC", 16, "#c4cec2", bold=True, mono=True)
+    rr(d, (left + 26, top + 68, left + 245, top + 230), 9, DARK2)
+    d.ellipse((left + 106, top + 112, left + 164, top + 170), fill=RED)
+    d.polygon([(left + 128, top + 126), (left + 128, top + 157), (left + 150, top + 141)], fill=WHITE)
+    txt(d, (left + 274, top + 100), "Last moments", 25, WHITE, bold=True)
+    txt(d, (left + 274, top + 141), "Short video parts play in order", 18, "#c4cec2")
+    for i, height in enumerate([14, 24, 18, 31, 20, 28, 15, 34, 24, 29, 16, 32, 23, 30, 15, 25, 34, 21, 27, 17]):
+        bx = left + 26 + i * 32
+        rr(d, (bx, top + 226 - height, bx + 15, top + 226), 5, RED if i in (12, 13) else "#85947d")
+    txt(d, (left + 28, top + 252), "0:00", 14, "#c4cec2", mono=True)
+    txt(d, (left + leftw - 28, top + 252), "0:30", 14, "#c4cec2", mono=True, anchor="ra")
+
+    # Readable event rows
+    txt(d, (left + 1, top + 315), "EXAMPLE EVENTS", 15, RED, bold=True, mono=True)
+    events = [("0:04", "CLICK", "Place order", False), ("0:11", "NETWORK", "POST /orders returned 500", True), ("0:12", "CONSOLE", "Request failed", True)]
+    for i, (timecode, kind, detail, failed) in enumerate(events):
+        yy = top + 355 + i * 66
+        d.line((left, yy + 49, left + leftw, yy + 49), fill=LINE, width=1)
+        txt(d, (left + 2, yy + 10), timecode, 16, MUTED, mono=True)
+        txt(d, (left + 105, yy + 10), kind, 15, RED if failed else OLIVE, bold=True, mono=True)
+        txt(d, (left + 245, yy + 10), detail, 18, INK, bold=failed)
+
+    sx, sw = x + 796, 420
+    rr(d, (sx, top, sx + sw, top + 130), 11, "#fff3ed", "#e8bcae", 1)
+    txt(d, (sx + 22, top + 24), "BEFORE SHARING", 15, RED, bold=True, mono=True)
+    txt(d, (sx + 22, top + 57), "Video is not blurred.", 20, INK, bold=True)
+    txt(d, (sx + 22, top + 91), "Review the file on this device.", 17, MUTED)
+
+    rr(d, (sx, top + 150, sx + sw, top + 310), 11, PAPER, LINE)
+    txt(d, (sx + 22, top + 173), "STORAGE VALUES", 15, OLIVE, bold=True, mono=True)
+    txt(d, (sx + 22, top + 212), "access_token", 16, MUTED, mono=True)
+    txt(d, (sx + sw - 22, top + 212), "[REDACTED]", 16, RED, bold=True, mono=True, anchor="ra")
+    d.line((sx + 20, top + 239, sx + sw - 20, top + 239), fill=LINE, width=1)
+    txt(d, (sx + 22, top + 270), "Common patterns only", 16, MUTED)
+
+    rr(d, (sx, top + 330, sx + sw, top + 390), 10, RED)
+    txt(d, (sx + sw / 2, top + 360), "Download .bugpack", 19, WHITE, bold=True, anchor="mm")
+    txt(d, (sx + 3, top + 426), "REPORT  ·  TIMELINE  ·  HAR  ·  OPTIONAL VIDEO", 14, MUTED, bold=True, mono=True)
+    return im
 
 
 def draw_flow_frame(step):
-    width, height = 1320, 760
-    image = Image.new('RGBA', (width, height), BG)
-    draw = ImageDraw.Draw(image)
-    mark(draw, 48, 36, 34)
-    text(draw, (96, 53), 'BUGPACK LOCAL', 11, INK, True, anchor='lm')
-    labels = [('01', 'PICK A SOURCE'), ('02', 'RECORD THE MOMENT'), ('03', 'REVIEW THE BUNDLE'), ('04', 'READ IT LOCALLY')]
-    number, label = labels[step]
-    text(draw, (width - 50, 53), f'{number}  /  {label}', 10, RED, True, anchor='rm')
+    w, h = 1320, 760
+    im = Image.new("RGB", (w, h), BG)
+    d = ImageDraw.Draw(im)
+    mark(d, 48, 34, 38)
+    txt(d, (100, 53), "BUGPACK LOCAL", 16, INK, bold=True, anchor="lm")
+    stages = ["CAPTURE", "REVIEW", "READ LOCALLY"]
+    txt(d, (1270, 53), f"0{step + 1}  /  03   {stages[step]}", 15, RED, bold=True, mono=True, anchor="rm")
+    titles = ["Keep the moment.", "Check before export.", "Read the bundle locally."]
+    subtitles = [
+        "A rolling screen buffer with nearby browser events.",
+        "Review the timeline and data before sharing the file.",
+        "Open the .bugpack with a local MCP reader.",
+    ]
+    txt(d, (52, 112), titles[step], 42, INK, bold=True)
+    txt(d, (54, 171), subtitles[step], 23, MUTED)
+
+    panel = (52, 226, 1268, 642)
+    rr(d, panel, 16, PAPER, LINE, 2)
     if step == 0:
-        draw_popup(image, 54, 112, 375, 520, False, 0)
-        draw = ImageDraw.Draw(image)
-        x, y, w, h = 462, 155, 790, 410
-        rounded(draw, (x, y, x + w, y + h), 18, PAPER, LINE, 2)
-        text(draw, (x + 30, y + 38), 'Choose a capture source', 21, INK, True)
-        text(draw, (x + 30, y + 68), 'The browser controls screen access.', 11, MUTED)
-        options = [('TAB', 'Current tab', 'Browser view'), ('WINDOW', 'App window', 'One window'), ('SCREEN', 'Entire screen', 'All visible content')]
-        for i, (heading, sub, foot) in enumerate(options):
-            xx = x + 30 + i * 245
-            rounded(draw, (xx, y + 115, xx + 220, y + 320), 14, '#f8f7f1', RED if i == 0 else LINE, 2 if i == 0 else 1)
-            rounded(draw, (xx + 16, y + 131, xx + 204, y + 245), 8, '#e9e8e0')
-            rounded(draw, (xx + 29, y + 144, xx + 192, y + 233), 5, PAPER)
-            rounded(draw, (xx + 46, y + 160, xx + 144, y + 167), 3, '#8a9c7a')
-            rounded(draw, (xx + 46, y + 178, xx + 176, y + 184), 3, '#d0d1c8')
-            rounded(draw, (xx + 46, y + 194, xx + 151, y + 200), 3, '#d0d1c8')
-            text(draw, (xx + 17, y + 267), heading, 9, RED if i == 0 else OLIVE, True)
-            text(draw, (xx + 17, y + 288), sub, 14, INK, True)
-            text(draw, (xx + 17, y + 309), foot, 9, MUTED)
-        text(draw, (x + 30, y + 370), 'Page events come from the active tab.', 10, MUTED)
+        # Large browser source illustration.
+        bx, by = 82, 258
+        rr(d, (bx, by, bx + 600, by + 330), 11, DARK)
+        rr(d, (bx + 1, by + 1, bx + 599, by + 55), 10, DARK2)
+        d.rectangle((bx + 1, by + 38, bx + 599, by + 55), fill=DARK2)
+        for i, c in enumerate([RED, GOLD, OLIVE]):
+            d.ellipse((bx + 22 + i * 20, by + 19, bx + 34 + i * 20, by + 31), fill=c)
+        txt(d, (bx + 94, by + 27), "checkout.example", 17, WHITE, anchor="lm")
+        rr(d, (bx + 30, by + 88, bx + 570, by + 260), 9, "#f5f3ec")
+        txt(d, (bx + 60, by + 119), "Place your order", 26, INK, bold=True)
+        rr(d, (bx + 60, by + 179, bx + 244, by + 224), 8, RED)
+        txt(d, (bx + 152, by + 202), "PLACE ORDER", 15, WHITE, bold=True, mono=True, anchor="mm")
+        # Side text
+        tx0 = 750
+        label(d, tx0, 285, "30 SECOND BUFFER", 16, RED)
+        txt(d, (tx0, 330), "Screen video\n+ browser events", 34, INK, bold=True, spacing=10)
+        txt(d, (tx0, 442), "The browser controls which\ntab, window, or screen is shared.", 21, MUTED, spacing=9)
+        rr(d, (tx0, 548, tx0 + 408, 605), 9, PALE)
+        txt(d, (tx0 + 20, 577), "SAVED ON THIS DEVICE", 15, INK, bold=True, mono=True, anchor="lm")
     elif step == 1:
-        draw_popup(image, 54, 112, 375, 520, True, step)
-        draw = ImageDraw.Draw(image)
-        x, y, w, h = 462, 155, 790, 410
-        rounded(draw, (x, y, x + w, y + h), 18, PAPER, LINE, 2)
-        text(draw, (x + 30, y + 38), 'Rolling capture', 21, INK, True)
-        text(draw, (x + 30, y + 68), 'Last 30 seconds stay in a local buffer.', 11, MUTED)
-        for i in range(30):
-            xx = x + 30 + i * 23
-            bar_height = 35 + ((i * 13 + step * 9) % 90)
-            rounded(draw, (xx, y + 240 - bar_height, xx + 11, y + 240), 5, RED if i > 24 else '#9baa91')
-        draw.line((x + 30, y + 251, x + w - 29, y + 251), fill=LINE, width=2)
-        text(draw, (x + 30, y + 274), '00:00', 9, MUTED, False, True)
-        text(draw, (x + w - 30, y + 274), '00:30', 9, MUTED, False, True, anchor='rm')
-        pill(draw, x + 30, y + 320, 'NO AUDIO', '#eeeee6', '#6e766c', 8, 8, 22)
-        pill(draw, x + 140, y + 320, 'NO UPLOAD', '#eeeee6', '#6e766c', 8, 8, 22)
-        pill(draw, x + 260, y + 320, 'LOCAL BUFFER', SOFT, '#637658', 8, 8, 22)
+        ex, ey, ew = 82, 265, 600
+        txt(d, (ex, ey), "EXAMPLE EVENTS", 16, OLIVE, bold=True, mono=True)
+        event_rows = [("0:04", "CLICK", "Place order", False), ("0:11", "NETWORK", "POST /orders  ·  500", True), ("0:12", "CONSOLE", "Request failed", True)]
+        for i, (timecode, kind, event, failed) in enumerate(event_rows):
+            yy = ey + 58 + i * 82
+            d.line((ex, yy + 59, ex + ew, yy + 59), fill=LINE, width=1)
+            txt(d, (ex, yy + 10), timecode, 17, MUTED, mono=True)
+            txt(d, (ex + 102, yy + 10), kind, 15, RED if failed else OLIVE, bold=True, mono=True)
+            txt(d, (ex + 235, yy + 10), event, 20, INK, bold=failed)
+        tx0 = 750
+        label(d, tx0, 285, "REVIEW", 16, RED)
+        txt(d, (tx0, 330), "See what the\nbundle contains.", 33, INK, bold=True, spacing=10)
+        txt(d, (tx0, 442), "Storage patterns are masked.\nVideo is not blurred.", 21, MUTED, spacing=10)
+        rr(d, (tx0, 548, tx0 + 408, 605), 9, "#fff0e9")
+        txt(d, (tx0 + 20, 577), "CHECK BEFORE YOU SHARE", 15, RED, bold=True, mono=True, anchor="lm")
     else:
-        draw_popup(image, 54, 112, 375, 520, True, step)
-        report = draw_report_base(step).resize((790, 426), Image.Resampling.LANCZOS)
-        image.alpha_composite(report, (462, 112))
-        if step == 3:
-            draw_terminal(image, 628, 474, 610, 245)
-    draw = ImageDraw.Draw(image)
-    text(draw, (52, 714), 'SCREEN', 9, OLIVE, True)
-    text(draw, (112, 714), '→', 12, RED, True)
-    text(draw, (138, 714), 'EVENTS', 9, OLIVE, True)
-    text(draw, (201, 714), '→', 12, RED, True)
-    text(draw, (229, 714), 'BUGPACK', 9, OLIVE, True)
-    text(draw, (304, 714), '→', 12, RED, True)
-    text(draw, (332, 714), 'MCP', 9, OLIVE, True)
-    return image.convert('RGB')
+        # File and local reader, with large, legible command/output.
+        fx, fy = 84, 275
+        rr(d, (fx, fy, fx + 360, fy + 285), 12, "#eeece4", LINE, 1)
+        rr(d, (fx + 115, fy + 38, fx + 245, fy + 170), 12, RED)
+        txt(d, (fx + 180, fy + 105), ".B", 40, WHITE, bold=True, mono=True, anchor="mm")
+        txt(d, (fx + 180, fy + 214), "bug-report.bugpack", 18, INK, bold=True, mono=True, anchor="mm")
+        txt(d, (fx + 180, fy + 250), "ONE LOCAL FILE", 14, MUTED, bold=True, mono=True, anchor="mm")
 
+        tx0 = 500
+        label(d, tx0, 268, "LOCAL MCP READER", 16, OLIVE)
+        rr(d, (tx0, 307, 1218, 526), 12, DARK)
+        txt(d, (tx0 + 25, 342), "$ bugpack mcp ~/Downloads/Bugpack", 19, WHITE, mono=True)
+        txt(d, (tx0 + 25, 391), "get_bug_context({ id: 'checkout-04' })", 18, "#d0d8ce", mono=True)
+        txt(d, (tx0 + 25, 447), "POST /orders  ·  HTTP 500", 20, "#f08a70", bold=True, mono=True)
+        txt(d, (tx0, 562), "The reader only opens the folder supplied to it.", 18, MUTED)
 
-def draw_terminal(image, x, y, width=700, height=300):
-    draw = ImageDraw.Draw(image)
-    rounded(draw, (x, y, x + width, y + height), 16, '#17231e', '#40574b', 2)
-    text(draw, (x + 20, y + 24), 'LOCAL MCP   /   stdio', 9, '#a8b9a5', True, True)
-    draw.ellipse((x + width - 62, y + 18, x + width - 52, y + 28), fill='#78916d')
-    draw.ellipse((x + width - 42, y + 18, x + width - 32, y + 28), fill=GOLD)
-    text(draw, (x + 22, y + 69), '$ bugpack mcp ~/Downloads/Bugpack', 16, '#e9e8df', False, True)
-    text(draw, (x + 22, y + 114), 'get_bug_context({ id: "checkout-04" })', 14, '#b5c4ae', False, True)
-    text(draw, (x + 22, y + 156), 'POST /api/orders  ·  HTTP 500', 13, '#f18e76', True, True)
-    text(draw, (x + 22, y + 189), 'Click “Place order” at 0:11.', 13, '#e4e7df', False, True)
-    text(draw, (x + 22, y + 238), 'report, console, network, storage', 11, '#8f9f8b', False, True)
+    # Progress footer uses plain text, not tiny badges.
+    d.line((54, 684, 1266, 684), fill=LINE, width=2)
+    steps = ["01  CAPTURE", "02  REVIEW", "03  READ LOCALLY"]
+    xs = [56, 460, 870]
+    for i, (xx, value) in enumerate(zip(xs, steps)):
+        txt(d, (xx, 720), value, 16, RED if i == step else MUTED, bold=True, mono=True)
+    return im
 
 
 def draw_profile_card():
-    width, height = 1440, 420
-    image = Image.new('RGBA', (width, height), GREEN)
-    draw = ImageDraw.Draw(image)
-    draw.ellipse((1120, -160, 1530, 250), fill=GREEN2)
-    draw.ellipse((1230, -80, 1460, 150), fill='#405546')
-    mark(draw, 64, 54, 42)
-    text(draw, (122, 75), 'BUGPACK LOCAL', 12, CREAM, True, anchor='lm')
-    pill(draw, 1130, 59, '0.1.1 PREVIEW', '#3b5146', '#dbe2d5', 9, 11, 26)
-    text(draw, (64, 151), 'Browser bug capture', 37, CREAM, True)
-    text(draw, (64, 197), 'to a local .bugpack file.', 37, CREAM, True)
-    text(draw, (66, 247), 'Screen buffer, browser events, storage review and a local MCP reader.', 14, '#bdc7bc')
-    for x, label in [(66, '30 SEC BUFFER'), (250, 'REVIEW BEFORE EXPORT'), (500, 'NO UPLOAD')]:
-        pill(draw, x, 296, label, '#34493e', '#dbe2d5', 9, 12, 29)
-    rounded(draw, (910, 125, 1377, 354), 18, '#f8f7f2')
-    rounded(draw, (930, 144, 1155, 322), 10, '#202a26')
-    rounded(draw, (951, 165, 1031, 225), 6, '#384d41')
-    draw.ellipse((981, 183, 1003, 205), fill=RED)
-    draw.polygon([(989, 188), (989, 201), (998, 195)], fill=CREAM)
-    text(draw, (1048, 173), 'REVIEW', 9, '#e9ece4', True)
-    for i in range(5):
-        yy = 244 + i * 12
-        rounded(draw, (952, yy, 1127 - (i % 2) * 26, yy + 4), 2, '#718475' if i == 2 else '#4d6054')
-    rounded(draw, (1172, 144, 1358, 322), 10, PAPER, LINE)
-    text(draw, (1187, 166), 'BROWSER EVENTS', 8, OLIVE, True)
-    text(draw, (1187, 194), '0:04  click', 9, INK, False, True)
-    text(draw, (1187, 218), '0:11  POST 500', 9, RED, True, True)
-    text(draw, (1187, 253), 'storage', 8, MUTED, False, True)
-    text(draw, (1187, 274), 'token [REDACTED]', 8, RED, True, True)
-    rounded(draw, (64, 364, 1378, 366), 1, '#42584c')
-    text(draw, (65, 390), 'LOCAL FILE', 8, '#aebbae', True)
-    text(draw, (1377, 390), 'CHROME EXTENSION  ·  MCP / STDIO', 8, '#aebbae', True, anchor='rm')
-    return image.convert('RGB')
+    w, h = 1600, 500
+    im = Image.new("RGB", (w, h), DARK)
+    d = ImageDraw.Draw(im)
+    # crisp panel dividers instead of miniature faux app content
+    mark(d, 66, 52, 42)
+    txt(d, (124, 73), "BUGPACK LOCAL", 17, WHITE, bold=True, anchor="lm")
+    txt(d, (1532, 74), "PREVIEW  0.1.2", 16, "#c6d0c5", bold=True, mono=True, anchor="rm")
+    txt(d, (66, 146), "Browser bugs,\nkept local.", 46, WHITE, bold=True, spacing=8)
+    txt(d, (68, 266), "A 30-second screen buffer, browser events,\nand one reviewable .bugpack file.", 23, "#c5cec4", spacing=10)
+
+    # Single readable record strip
+    d.line((68, 365, 805, 365), fill="#53645a", width=2)
+    txt(d, (68, 410), "30 SEC", 20, "#f18a70", bold=True, mono=True)
+    txt(d, (190, 410), "LOCAL FILE", 20, "#d7dfd4", bold=True, mono=True)
+    txt(d, (380, 410), "MCP READER", 20, "#d7dfd4", bold=True, mono=True)
+
+    # Large report pane with text intended to remain readable on a profile page.
+    x, y = 900, 112
+    rr(d, (x, y, 1532, y + 312), 14, PAPER)
+    txt(d, (x + 30, y + 28), "EXAMPLE TIMELINE", 16, OLIVE, bold=True, mono=True)
+    rows = [("0:04", "CLICK  Place order", INK), ("0:11", "POST /orders  ·  500", RED), ("0:12", "Request failed", MUTED)]
+    for i, (timecode, event, color) in enumerate(rows):
+        yy = y + 66 + i * 59
+        d.line((x + 30, yy + 46, 1500, yy + 46), fill=LINE, width=1)
+        txt(d, (x + 30, yy + 6), timecode, 17, MUTED, mono=True)
+        txt(d, (x + 145, yy + 6), event, 21, color, bold=(color == RED))
+    rr(d, (x + 30, y + 260, 1500, y + 292), 7, PALE)
+    txt(d, (x + 45, y + 276), "REVIEW BEFORE EXPORT", 14, INK, bold=True, mono=True, anchor="lm")
+    return im
 
 
 cover = draw_cover()
-cover.save(OUT / 'bugpack-cover.png', optimize=True)
-popup = Image.new('RGBA', (760, 620), BG)
-draw_popup(popup, 170, 60, 420, 500, True, 2)
-popup.convert('RGB').save(OUT / 'popup-preview.png', optimize=True)
-report = Image.new('RGBA', (1320, 710), BG)
-report.alpha_composite(draw_report_base(2).resize((1230, 663), Image.Resampling.LANCZOS), (45, 24))
-report.convert('RGB').save(OUT / 'report-review.png', optimize=True)
-draw_profile_card().save(OUT / 'profile-card.png', optimize=True)
-frames = [draw_flow_frame(i) for i in range(4)]
-frames[0].save(OUT / 'bugpack-flow.gif', save_all=True, append_images=frames[1:], duration=[1400, 1400, 1600, 1800], loop=0, disposal=2, optimize=True)
-print('Wrote Bugpack Local screenshots and animated preview to assets/.')
+cover.save(OUT / "bugpack-cover.png", optimize=True)
+draw_popup_preview().save(OUT / "popup-preview.png", optimize=True)
+draw_report_preview().save(OUT / "report-review.png", optimize=True)
+draw_profile_card().save(OUT / "profile-card.png", optimize=True)
+frames = [draw_flow_frame(i) for i in range(3)]
+frames[0].save(
+    OUT / "bugpack-flow.gif",
+    save_all=True,
+    append_images=frames[1:],
+    duration=[1900, 1900, 2100],
+    loop=0,
+    disposal=2,
+    optimize=True,
+)
+print("Wrote the simplified Bugpack Local artwork to assets/.")

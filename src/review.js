@@ -189,7 +189,7 @@ function replayHtml(data) {
 }
 
 function makeHar(data) {
-  return JSON.stringify(data.attachments?.context ? data.network : { log: { version: '1.2', creator: { name: 'Bugpack Local', version: '0.1.1' }, entries: [] } }, null, 2);
+  return JSON.stringify(data.attachments?.context ? data.network : { log: { version: '1.2', creator: { name: 'Bugpack Local', version: '0.1.2' }, entries: [] } }, null, 2);
 }
 
 async function exportBugpack() {
@@ -206,7 +206,7 @@ async function exportBugpack() {
   report.attachments = include;
   if (!include.context) {
     report.events = [];
-    report.network = { log: { version: '1.2', creator: { name: 'Bugpack Local', version: '0.1.1' }, entries: [] } };
+    report.network = { log: { version: '1.2', creator: { name: 'Bugpack Local', version: '0.1.2' }, entries: [] } };
   }
   if (!include.storage) report.storage = { localStorage: {}, sessionStorage: {} };
   if (!include.video) report.videoSegments = [];

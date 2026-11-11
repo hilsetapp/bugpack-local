@@ -2,7 +2,8 @@ const language = navigator.language.toLowerCase().startsWith('ru') ? 'ru' : 'en'
 const text = {
   en: {
     local: 'LOCAL', eyebrow: 'KEEP THE MOMENT', title: 'Catch the bug.<br>Keep the context.',
-    intro: 'Keep the last moments on screen with the browser events around the bug.',
+    intro: 'Screen video and browser events in one local report.',
+    bufferVisualLabel: '30-second screen buffer', bufferVisualLocal: 'Rolling locally', activeBufferLabel: 'ROLLING BUFFER',
     sourceTitle: 'Choose what to record', sourceText: 'A browser prompt lets you pick a tab, window, or screen.',
     start: 'Choose source and start', armNote: 'Start before reproducing the issue. Page events come from the active tab. Nothing is captured at install time.',
     armed: 'Capture is armed', bufferText: 'The last 30 seconds stay in a local rolling buffer.', bug: 'Save bug report', stop: 'Stop capture',
@@ -15,7 +16,8 @@ const text = {
   },
   ru: {
     local: 'ЛОКАЛЬНО', eyebrow: 'СОХРАНИТЬ МОМЕНТ', title: 'Нашёл баг.<br>Сохрани контекст.',
-    intro: 'Запись экрана, события вкладки и готовый бандл для разработчика.',
+    intro: 'Видео экрана и события браузера в одном локальном отчёте.',
+    bufferVisualLabel: 'Буфер экрана на 30 секунд', bufferVisualLocal: 'Запись остаётся локально', activeBufferLabel: 'БУФЕР ЗАПИСИ',
     sourceTitle: 'Выбери, что записывать', sourceText: 'В окне браузера можно выбрать вкладку, окно или экран.',
     start: 'Выбрать источник и начать', armNote: 'Запусти запись до воспроизведения. События берутся из активной вкладки. При установке ничего не записывается.',
     armed: 'Запись включена', bufferText: 'Последние 30 секунд хранятся в локальном кольцевом буфере.', bug: 'Сохранить багрепорт', stop: 'Остановить запись',
