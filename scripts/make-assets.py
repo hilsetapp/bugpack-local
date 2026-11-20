@@ -304,43 +304,11 @@ def draw_flow_frame(step):
     return im
 
 
-def draw_profile_card():
-    w, h = 1600, 500
-    im = Image.new("RGB", (w, h), DARK)
-    d = ImageDraw.Draw(im)
-    # crisp panel dividers instead of miniature faux app content
-    mark(d, 66, 52, 42)
-    txt(d, (124, 73), "BUGPACK LOCAL", 17, WHITE, bold=True, anchor="lm")
-    txt(d, (1532, 74), "PREVIEW  0.1.2", 16, "#c6d0c5", bold=True, mono=True, anchor="rm")
-    txt(d, (66, 146), "Browser bugs,\nkept local.", 46, WHITE, bold=True, spacing=8)
-    txt(d, (68, 266), "A 30-second screen buffer, browser events,\nand one reviewable .bugpack file.", 23, "#c5cec4", spacing=10)
-
-    # Single readable record strip
-    d.line((68, 365, 805, 365), fill="#53645a", width=2)
-    txt(d, (68, 410), "30 SEC", 20, "#f18a70", bold=True, mono=True)
-    txt(d, (190, 410), "LOCAL FILE", 20, "#d7dfd4", bold=True, mono=True)
-    txt(d, (380, 410), "MCP READER", 20, "#d7dfd4", bold=True, mono=True)
-
-    # Large report pane with text intended to remain readable on a profile page.
-    x, y = 900, 112
-    rr(d, (x, y, 1532, y + 312), 14, PAPER)
-    txt(d, (x + 30, y + 28), "EXAMPLE TIMELINE", 16, OLIVE, bold=True, mono=True)
-    rows = [("0:04", "CLICK  Place order", INK), ("0:11", "POST /orders  ·  500", RED), ("0:12", "Request failed", MUTED)]
-    for i, (timecode, event, color) in enumerate(rows):
-        yy = y + 66 + i * 59
-        d.line((x + 30, yy + 46, 1500, yy + 46), fill=LINE, width=1)
-        txt(d, (x + 30, yy + 6), timecode, 17, MUTED, mono=True)
-        txt(d, (x + 145, yy + 6), event, 21, color, bold=(color == RED))
-    rr(d, (x + 30, y + 260, 1500, y + 292), 7, PALE)
-    txt(d, (x + 45, y + 276), "REVIEW BEFORE EXPORT", 14, INK, bold=True, mono=True, anchor="lm")
-    return im
-
 
 cover = draw_cover()
 cover.save(OUT / "bugpack-cover.png", optimize=True)
 draw_popup_preview().save(OUT / "popup-preview.png", optimize=True)
 draw_report_preview().save(OUT / "report-review.png", optimize=True)
-draw_profile_card().save(OUT / "profile-card.png", optimize=True)
 frames = [draw_flow_frame(i) for i in range(3)]
 frames[0].save(
     OUT / "bugpack-flow.gif",
